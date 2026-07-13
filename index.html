@@ -102,10 +102,6 @@
 
     <canvas class="scope" id="scope" width="640" height="128"></canvas>
 
-    <div class="readout" id="readout">
-      <div class="fx-line">Press play to wire in the first fixture.</div>
-    </div>
-
     <div class="controls">
       <button class="primary" id="playBtn">▶ Play</button>
       <button id="prevBtn" title="Previous fixture">⏮</button>
@@ -113,6 +109,10 @@
       <div class="spacer"></div>
       <label class="loop"><input type="checkbox" id="loop" checked> loop</label>
       <div class="counter" id="counter">0 / 0</div>
+    </div>
+
+    <div class="readout" id="readout">
+      <div class="fx-line">Press play to wire in the first fixture.</div>
     </div>
   </div>
 </div>
@@ -199,8 +199,16 @@ PLAYERS.forEach((name, i) => {
 let audioReady = false;
 let masterBus, analyser, synths = {};
 
+function showAudioNotice(msg){
+  readoutEl.innerHTML = `<div class="fx-line" style="color:#ff8f8f">${msg}</div>`;
+}
+
 function initAudio(){
-  if (audioReady) return;
+  if (audioReady) return true;
+  if (typeof Tone === "undefined"){
+    showAudioNotice("⚠ Sound engine failed to load — check your connection, then reload the page.");
+    return false;
+  }
   masterBus = new Tone.Gain(0.8).toDestination();
   analyser = new Tone.Analyser("waveform", 1024);
   masterBus.connect(analyser);
@@ -209,10 +217,21 @@ function initAudio(){
     synths[name] = new Tone.Synth({
       oscillator: { type: m.wave },
       envelope: { attack: 0.01, decay: 0.15, sustain: 0.4, release: 0.35 },
-      volume: -8,
+      volume: -5,
     }).connect(masterBus);
   });
   audioReady = true;
+  return true;
+}
+
+async function unlockAudio(){
+  if (!initAudio()) return false;
+  await Tone.start();
+  if (Tone.context.state !== "running"){
+    showAudioNotice("⚠ Audio is still locked on this device — check your mute switch/volume, then tap Play again.");
+    return false;
+  }
+  return true;
 }
 
 // ── Oscilloscope ─────────────────────────────────────────────────────────
@@ -243,7 +262,7 @@ function drawScope(){
 requestAnimationFrame(drawScope);
 
 // ── Playback state ─────────────────────────────────────────────────────
-const STEP_MS = 400;   // fixed tempo — restored to the faster pace
+const STEP_MS = 300;   // fixed tempo
 let idx = -1;
 let playing = false;
 let timer = null;
@@ -314,9 +333,9 @@ function stepTo(newIdx){
 
 function tick(){ stepTo(idx + 1); }
 
-function play(){
-  initAudio();
-  Tone.start();
+async function play(){
+  const ok = await unlockAudio();
+  if (!ok) return;
   if (idx === -1) stepTo(0);
   playing = true;
   playBtn.textContent = "⏸ Pause";
@@ -331,8 +350,8 @@ function pause(){
 }
 
 playBtn.addEventListener("click", () => { playing ? pause() : play(); });
-nextBtnEl.addEventListener("click", () => { initAudio(); Tone.start(); stepTo(idx + 1); });
-document.getElementById("prevBtn").addEventListener("click", () => { initAudio(); Tone.start(); stepTo(idx - 1); });
+nextBtnEl.addEventListener("click", async () => { const ok = await unlockAudio(); if (ok) stepTo(idx + 1); });
+document.getElementById("prevBtn").addEventListener("click", async () => { const ok = await unlockAudio(); if (ok) stepTo(idx - 1); });
 
 counterEl.textContent = `0 / ${FIXTURES.length}`;
 </script>
