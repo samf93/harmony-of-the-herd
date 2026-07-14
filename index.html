@@ -33,7 +33,7 @@
     border-radius:16px;padding:30px 26px 24px;position:relative;
     box-shadow:0 30px 60px -30px rgba(0,0,0,.6);}
 
-  .hexwrap{position:relative;width:100%;max-width:480px;margin:0 auto;}
+  .hexwrap{position:relative;width:100%;max-width:560px;margin:0 auto;}
   svg{width:100%;height:auto;display:block;overflow:visible;}
   .wire{stroke:var(--wire-idle);stroke-width:1.5px;opacity:.5;
     transition:stroke-width .2s ease, opacity .2s ease;}
@@ -48,6 +48,7 @@
     dominant-baseline:middle;pointer-events:none;}
   .node .note-lbl{font-size:10px;font-weight:500;fill:var(--text-muted);
     text-anchor:middle;pointer-events:none;}
+  .count-bar{transition:stroke .2s ease, opacity .2s ease;}
 
   .scope{width:100%;height:64px;display:block;margin-top:22px;
     border-radius:8px;background:#080a0d;border:1px solid var(--panel-border);}
@@ -92,12 +93,13 @@
 </style>
 </head>
 <body>
+<audio id="unlockEl" playsinline style="display:none" src="data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA=="></audio>
 <div class="wrap">
   <h1>Harmony of the Herd</h1>
 
   <div class="panel">
     <div class="hexwrap">
-      <svg id="hexSvg" viewBox="0 0 500 520"></svg>
+      <svg id="hexSvg" viewBox="0 0 620 620"></svg>
     </div>
 
     <canvas class="scope" id="scope" width="640" height="128"></canvas>
@@ -120,11 +122,11 @@
 <script>
 const PLAYERS = ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"];
 const FIXTURES = [{"no": 1, "round": 1, "roundName": "Group Stage - Part 1", "home": "MEX", "away": "RSA", "homeFull": "Mexico", "awayFull": "South Africa", "homeIso": "mx", "awayIso": "za", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 2, "round": 1, "roundName": "Group Stage - Part 1", "home": "KOR", "away": "CZE", "homeFull": "South Korea", "awayFull": "Czech Republic", "homeIso": "kr", "awayIso": "cz", "result": "H", "correct": ["Adrienne", "El Roxinho"]}, {"no": 3, "round": 1, "roundName": "Group Stage - Part 1", "home": "CAN", "away": "BIH", "homeFull": "Canada", "awayFull": "Bosnia & Herz.", "homeIso": "ca", "awayIso": "ba", "result": "D", "correct": []}, {"no": 4, "round": 1, "roundName": "Group Stage - Part 1", "home": "USA", "away": "PAR", "homeFull": "United States", "awayFull": "Paraguay", "homeIso": "us", "awayIso": "py", "result": "H", "correct": ["Gwyn Thomas", "Matt"]}, {"no": 5, "round": 1, "roundName": "Group Stage - Part 1", "home": "QAT", "away": "SUI", "homeFull": "Qatar", "awayFull": "Switzerland", "homeIso": "qa", "awayIso": "ch", "result": "D", "correct": ["Adrienne", "El Roxinho"]}, {"no": 6, "round": 1, "roundName": "Group Stage - Part 1", "home": "BRA", "away": "MAR", "homeFull": "Brazil", "awayFull": "Morocco", "homeIso": "br", "awayIso": "ma", "result": "D", "correct": []}, {"no": 7, "round": 1, "roundName": "Group Stage - Part 1", "home": "HAI", "away": "SCO", "homeFull": "Haiti", "awayFull": "Scotland", "homeIso": "ht", "awayIso": "gb-sct", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt"]}, {"no": 8, "round": 1, "roundName": "Group Stage - Part 1", "home": "AUS", "away": "TUR", "homeFull": "Australia", "awayFull": "Turkey", "homeIso": "au", "awayIso": "tr", "result": "H", "correct": ["Gwyn Thomas"]}, {"no": 9, "round": 1, "roundName": "Group Stage - Part 1", "home": "GER", "away": "CUW", "homeFull": "Germany", "awayFull": "Cura\u00e7ao", "homeIso": "de", "awayIso": "cw", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Matt", "El Roxinho"]}, {"no": 10, "round": 1, "roundName": "Group Stage - Part 1", "home": "NED", "away": "JPN", "homeFull": "Netherlands", "awayFull": "Japan", "homeIso": "nl", "awayIso": "jp", "result": "D", "correct": []}, {"no": 11, "round": 1, "roundName": "Group Stage - Part 1", "home": "CIV", "away": "ECU", "homeFull": "C\u00f4te d'Ivoire", "awayFull": "Ecuador", "homeIso": "ci", "awayIso": "ec", "result": "H", "correct": ["Sam", "Adrienne"]}, {"no": 12, "round": 1, "roundName": "Group Stage - Part 1", "home": "SWE", "away": "TUN", "homeFull": "Sweden", "awayFull": "Tunisia", "homeIso": "se", "awayIso": "tn", "result": "H", "correct": ["JohnnyJ", "Matt"]}, {"no": 13, "round": 1, "roundName": "Group Stage - Part 1", "home": "ESP", "away": "CPV", "homeFull": "Spain", "awayFull": "Cape Verde", "homeIso": "es", "awayIso": "cv", "result": "D", "correct": []}, {"no": 14, "round": 1, "roundName": "Group Stage - Part 1", "home": "BEL", "away": "EGY", "homeFull": "Belgium", "awayFull": "Egypt", "homeIso": "be", "awayIso": "eg", "result": "D", "correct": ["Sam", "Adrienne", "El Roxinho"]}, {"no": 15, "round": 1, "roundName": "Group Stage - Part 1", "home": "KSA", "away": "URU", "homeFull": "Saudi Arabia", "awayFull": "Uruguay", "homeIso": "sa", "awayIso": "uy", "result": "D", "correct": []}, {"no": 16, "round": 1, "roundName": "Group Stage - Part 1", "home": "IRN", "away": "NZL", "homeFull": "Iran", "awayFull": "New Zealand", "homeIso": "ir", "awayIso": "nz", "result": "D", "correct": ["JohnnyJ"]}, {"no": 17, "round": 1, "roundName": "Group Stage - Part 1", "home": "FRA", "away": "SEN", "homeFull": "France", "awayFull": "Senegal", "homeIso": "fr", "awayIso": "sn", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 18, "round": 1, "roundName": "Group Stage - Part 1", "home": "IRQ", "away": "NOR", "homeFull": "Iraq", "awayFull": "Norway", "homeIso": "iq", "awayIso": "no", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 19, "round": 1, "roundName": "Group Stage - Part 1", "home": "ARG", "away": "ALG", "homeFull": "Argentina", "awayFull": "Algeria", "homeIso": "ar", "awayIso": "dz", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt"]}, {"no": 20, "round": 1, "roundName": "Group Stage - Part 1", "home": "AUT", "away": "JOR", "homeFull": "Austria", "awayFull": "Jordan", "homeIso": "at", "awayIso": "jo", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 21, "round": 1, "roundName": "Group Stage - Part 1", "home": "POR", "away": "COD", "homeFull": "Portugal", "awayFull": "DR Congo", "homeIso": "pt", "awayIso": "cd", "result": "D", "correct": ["El Roxinho"]}, {"no": 22, "round": 1, "roundName": "Group Stage - Part 1", "home": "ENG", "away": "CRO", "homeFull": "England", "awayFull": "Croatia", "homeIso": "gb-eng", "awayIso": "hr", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt"]}, {"no": 23, "round": 1, "roundName": "Group Stage - Part 1", "home": "GHA", "away": "PAN", "homeFull": "Ghana", "awayFull": "Panama", "homeIso": "gh", "awayIso": "pa", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Matt"]}, {"no": 24, "round": 1, "roundName": "Group Stage - Part 1", "home": "UZB", "away": "COL", "homeFull": "Uzbekistan", "awayFull": "Colombia", "homeIso": "uz", "awayIso": "co", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 25, "round": 2, "roundName": "Group Stage - Part 2", "home": "CZE", "away": "RSA", "homeFull": "Czech Republic", "awayFull": "South Africa", "homeIso": "cz", "awayIso": "za", "result": "D", "correct": ["Sam", "Adrienne", "El Roxinho"]}, {"no": 26, "round": 2, "roundName": "Group Stage - Part 2", "home": "SUI", "away": "BIH", "homeFull": "Switzerland", "awayFull": "Bosnia & Herz.", "homeIso": "ch", "awayIso": "ba", "result": "H", "correct": ["Adrienne", "JohnnyJ", "Gwyn Thomas", "El Roxinho"]}, {"no": 27, "round": 2, "roundName": "Group Stage - Part 2", "home": "CAN", "away": "QAT", "homeFull": "Canada", "awayFull": "Qatar", "homeIso": "ca", "awayIso": "qa", "result": "H", "correct": ["Sam", "JohnnyJ", "Gwyn Thomas", "El Roxinho"]}, {"no": 28, "round": 2, "roundName": "Group Stage - Part 2", "home": "MEX", "away": "KOR", "homeFull": "Mexico", "awayFull": "South Korea", "homeIso": "mx", "awayIso": "kr", "result": "H", "correct": ["Sam", "Adrienne", "Gwyn Thomas", "Matt"]}, {"no": 29, "round": 2, "roundName": "Group Stage - Part 2", "home": "USA", "away": "AUS", "homeFull": "United States", "awayFull": "Australia", "homeIso": "us", "awayIso": "au", "result": "H", "correct": ["Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt"]}, {"no": 30, "round": 2, "roundName": "Group Stage - Part 2", "home": "SCO", "away": "MAR", "homeFull": "Scotland", "awayFull": "Morocco", "homeIso": "gb-sct", "awayIso": "ma", "result": "A", "correct": ["Sam", "Adrienne", "Matt", "El Roxinho"]}, {"no": 31, "round": 2, "roundName": "Group Stage - Part 2", "home": "BRA", "away": "HAI", "homeFull": "Brazil", "awayFull": "Haiti", "homeIso": "br", "awayIso": "ht", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 32, "round": 2, "roundName": "Group Stage - Part 2", "home": "TUR", "away": "PAR", "homeFull": "Turkey", "awayFull": "Paraguay", "homeIso": "tr", "awayIso": "py", "result": "A", "correct": []}, {"no": 33, "round": 2, "roundName": "Group Stage - Part 2", "home": "NED", "away": "SWE", "homeFull": "Netherlands", "awayFull": "Sweden", "homeIso": "nl", "awayIso": "se", "result": "H", "correct": ["Sam", "Adrienne", "El Roxinho"]}, {"no": 34, "round": 2, "roundName": "Group Stage - Part 2", "home": "GER", "away": "CIV", "homeFull": "Germany", "awayFull": "C\u00f4te d'Ivoire", "homeIso": "de", "awayIso": "ci", "result": "H", "correct": ["Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 35, "round": 2, "roundName": "Group Stage - Part 2", "home": "ECU", "away": "CUW", "homeFull": "Ecuador", "awayFull": "Cura\u00e7ao", "homeIso": "ec", "awayIso": "cw", "result": "D", "correct": ["Gwyn Thomas"]}, {"no": 36, "round": 2, "roundName": "Group Stage - Part 2", "home": "TUN", "away": "JPN", "homeFull": "Tunisia", "awayFull": "Japan", "homeIso": "tn", "awayIso": "jp", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt"]}, {"no": 37, "round": 2, "roundName": "Group Stage - Part 2", "home": "ESP", "away": "KSA", "homeFull": "Spain", "awayFull": "Saudi Arabia", "homeIso": "es", "awayIso": "sa", "result": "H", "correct": ["Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 38, "round": 2, "roundName": "Group Stage - Part 2", "home": "BEL", "away": "IRN", "homeFull": "Belgium", "awayFull": "Iran", "homeIso": "be", "awayIso": "ir", "result": "D", "correct": ["El Roxinho"]}, {"no": 39, "round": 2, "roundName": "Group Stage - Part 2", "home": "URU", "away": "CPV", "homeFull": "Uruguay", "awayFull": "Cape Verde", "homeIso": "uy", "awayIso": "cv", "result": "D", "correct": ["Gwyn Thomas", "El Roxinho"]}, {"no": 40, "round": 2, "roundName": "Group Stage - Part 2", "home": "NZL", "away": "EGY", "homeFull": "New Zealand", "awayFull": "Egypt", "homeIso": "nz", "awayIso": "eg", "result": "A", "correct": ["Sam", "Adrienne"]}, {"no": 41, "round": 2, "roundName": "Group Stage - Part 2", "home": "ARG", "away": "AUT", "homeFull": "Argentina", "awayFull": "Austria", "homeIso": "ar", "awayIso": "at", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "El Roxinho"]}, {"no": 42, "round": 2, "roundName": "Group Stage - Part 2", "home": "FRA", "away": "IRQ", "homeFull": "France", "awayFull": "Iraq", "homeIso": "fr", "awayIso": "iq", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 43, "round": 2, "roundName": "Group Stage - Part 2", "home": "NOR", "away": "SEN", "homeFull": "Norway", "awayFull": "Senegal", "homeIso": "no", "awayIso": "sn", "result": "H", "correct": ["Sam", "JohnnyJ", "El Roxinho"]}, {"no": 44, "round": 2, "roundName": "Group Stage - Part 2", "home": "JOR", "away": "ALG", "homeFull": "Jordan", "awayFull": "Algeria", "homeIso": "jo", "awayIso": "dz", "result": "A", "correct": ["Sam", "El Roxinho"]}, {"no": 45, "round": 2, "roundName": "Group Stage - Part 2", "home": "POR", "away": "UZB", "homeFull": "Portugal", "awayFull": "Uzbekistan", "homeIso": "pt", "awayIso": "uz", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 46, "round": 2, "roundName": "Group Stage - Part 2", "home": "ENG", "away": "GHA", "homeFull": "England", "awayFull": "Ghana", "homeIso": "gb-eng", "awayIso": "gh", "result": "D", "correct": []}, {"no": 47, "round": 2, "roundName": "Group Stage - Part 2", "home": "PAN", "away": "CRO", "homeFull": "Panama", "awayFull": "Croatia", "homeIso": "pa", "awayIso": "hr", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 48, "round": 2, "roundName": "Group Stage - Part 2", "home": "COL", "away": "COD", "homeFull": "Colombia", "awayFull": "DR Congo", "homeIso": "co", "awayIso": "cd", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Matt", "El Roxinho"]}, {"no": 49, "round": 3, "roundName": "Group Stage - Part 3", "home": "SUI", "away": "CAN", "homeFull": "Switzerland", "awayFull": "Canada", "homeIso": "ch", "awayIso": "ca", "result": "H", "correct": ["El Roxinho"]}, {"no": 50, "round": 3, "roundName": "Group Stage - Part 3", "home": "BIH", "away": "QAT", "homeFull": "Bosnia & Herz.", "awayFull": "Qatar", "homeIso": "ba", "awayIso": "qa", "result": "H", "correct": ["El Roxinho"]}, {"no": 51, "round": 3, "roundName": "Group Stage - Part 3", "home": "MAR", "away": "HAI", "homeFull": "Morocco", "awayFull": "Haiti", "homeIso": "ma", "awayIso": "ht", "result": "H", "correct": ["El Roxinho"]}, {"no": 52, "round": 3, "roundName": "Group Stage - Part 3", "home": "SCO", "away": "BRA", "homeFull": "Scotland", "awayFull": "Brazil", "homeIso": "gb-sct", "awayIso": "br", "result": "A", "correct": ["El Roxinho"]}, {"no": 53, "round": 3, "roundName": "Group Stage - Part 3", "home": "RSA", "away": "KOR", "homeFull": "South Africa", "awayFull": "South Korea", "homeIso": "za", "awayIso": "kr", "result": "H", "correct": ["Sam", "JohnnyJ", "Matt"]}, {"no": 54, "round": 3, "roundName": "Group Stage - Part 3", "home": "CZE", "away": "MEX", "homeFull": "Czech Republic", "awayFull": "Mexico", "homeIso": "cz", "awayIso": "mx", "result": "A", "correct": ["Sam", "Adrienne", "Gwyn Thomas", "Matt"]}, {"no": 55, "round": 3, "roundName": "Group Stage - Part 3", "home": "CUW", "away": "CIV", "homeFull": "Cura\u00e7ao", "awayFull": "C\u00f4te d'Ivoire", "homeIso": "cw", "awayIso": "ci", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Matt", "El Roxinho"]}, {"no": 56, "round": 3, "roundName": "Group Stage - Part 3", "home": "ECU", "away": "GER", "homeFull": "Ecuador", "awayFull": "Germany", "homeIso": "ec", "awayIso": "de", "result": "H", "correct": []}, {"no": 57, "round": 3, "roundName": "Group Stage - Part 3", "home": "TUN", "away": "NED", "homeFull": "Tunisia", "awayFull": "Netherlands", "homeIso": "tn", "awayIso": "nl", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 58, "round": 3, "roundName": "Group Stage - Part 3", "home": "JPN", "away": "SWE", "homeFull": "Japan", "awayFull": "Sweden", "homeIso": "jp", "awayIso": "se", "result": "D", "correct": []}, {"no": 59, "round": 3, "roundName": "Group Stage - Part 3", "home": "TUR", "away": "USA", "homeFull": "Turkey", "awayFull": "United States", "homeIso": "tr", "awayIso": "us", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Matt", "El Roxinho"]}, {"no": 60, "round": 3, "roundName": "Group Stage - Part 3", "home": "PAR", "away": "AUS", "homeFull": "Paraguay", "awayFull": "Australia", "homeIso": "py", "awayIso": "au", "result": "D", "correct": ["JohnnyJ", "Matt"]}, {"no": 61, "round": 3, "roundName": "Group Stage - Part 3", "home": "NOR", "away": "FRA", "homeFull": "Norway", "awayFull": "France", "homeIso": "no", "awayIso": "fr", "result": "A", "correct": ["Gwyn Thomas"]}, {"no": 62, "round": 3, "roundName": "Group Stage - Part 3", "home": "SEN", "away": "IRQ", "homeFull": "Senegal", "awayFull": "Iraq", "homeIso": "sn", "awayIso": "iq", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Matt", "El Roxinho"]}, {"no": 63, "round": 3, "roundName": "Group Stage - Part 3", "home": "CPV", "away": "KSA", "homeFull": "Cape Verde", "awayFull": "Saudi Arabia", "homeIso": "cv", "awayIso": "sa", "result": "D", "correct": ["Sam", "Gwyn Thomas", "El Roxinho"]}, {"no": 64, "round": 3, "roundName": "Group Stage - Part 3", "home": "URU", "away": "ESP", "homeFull": "Uruguay", "awayFull": "Spain", "homeIso": "uy", "awayIso": "es", "result": "A", "correct": ["Sam", "Adrienne", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 65, "round": 3, "roundName": "Group Stage - Part 3", "home": "NZL", "away": "BEL", "homeFull": "New Zealand", "awayFull": "Belgium", "homeIso": "nz", "awayIso": "be", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Matt", "El Roxinho"]}, {"no": 66, "round": 3, "roundName": "Group Stage - Part 3", "home": "EGY", "away": "IRN", "homeFull": "Egypt", "awayFull": "Iran", "homeIso": "eg", "awayIso": "ir", "result": "D", "correct": ["JohnnyJ"]}, {"no": 67, "round": 3, "roundName": "Group Stage - Part 3", "home": "PAN", "away": "ENG", "homeFull": "Panama", "awayFull": "England", "homeIso": "pa", "awayIso": "gb-eng", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Matt", "El Roxinho"]}, {"no": 68, "round": 3, "roundName": "Group Stage - Part 3", "home": "CRO", "away": "GHA", "homeFull": "Croatia", "awayFull": "Ghana", "homeIso": "hr", "awayIso": "gh", "result": "H", "correct": ["Adrienne", "JohnnyJ", "Gwyn Thomas"]}, {"no": 69, "round": 3, "roundName": "Group Stage - Part 3", "home": "COL", "away": "POR", "homeFull": "Colombia", "awayFull": "Portugal", "homeIso": "co", "awayIso": "pt", "result": "D", "correct": ["Sam"]}, {"no": 70, "round": 3, "roundName": "Group Stage - Part 3", "home": "COD", "away": "UZB", "homeFull": "DR Congo", "awayFull": "Uzbekistan", "homeIso": "cd", "awayIso": "uz", "result": "H", "correct": ["JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 71, "round": 3, "roundName": "Group Stage - Part 3", "home": "ALG", "away": "AUT", "homeFull": "Algeria", "awayFull": "Austria", "homeIso": "dz", "awayIso": "at", "result": "D", "correct": ["Adrienne", "El Roxinho"]}, {"no": 72, "round": 3, "roundName": "Group Stage - Part 3", "home": "JOR", "away": "ARG", "homeFull": "Jordan", "awayFull": "Argentina", "homeIso": "jo", "awayIso": "ar", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 73, "round": 4, "roundName": "Round of 32", "home": "RSA", "away": "CAN", "homeFull": "South Africa", "awayFull": "Canada", "homeIso": "za", "awayIso": "ca", "result": "A", "correct": ["Sam", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 74, "round": 4, "roundName": "Round of 32", "home": "BRA", "away": "JPN", "homeFull": "Brazil", "awayFull": "Japan", "homeIso": "br", "awayIso": "jp", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 75, "round": 4, "roundName": "Round of 32", "home": "GER", "away": "PAR", "homeFull": "Germany", "awayFull": "Paraguay", "homeIso": "de", "awayIso": "py", "result": "A", "correct": []}, {"no": 76, "round": 4, "roundName": "Round of 32", "home": "NED", "away": "MAR", "homeFull": "Netherlands", "awayFull": "Morocco", "homeIso": "nl", "awayIso": "ma", "result": "A", "correct": ["Gwyn Thomas"]}, {"no": 77, "round": 4, "roundName": "Round of 32", "home": "CIV", "away": "NOR", "homeFull": "C\u00f4te d'Ivoire", "awayFull": "Norway", "homeIso": "ci", "awayIso": "no", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 78, "round": 4, "roundName": "Round of 32", "home": "FRA", "away": "SWE", "homeFull": "France", "awayFull": "Sweden", "homeIso": "fr", "awayIso": "se", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 79, "round": 4, "roundName": "Round of 32", "home": "MEX", "away": "ECU", "homeFull": "Mexico", "awayFull": "Ecuador", "homeIso": "mx", "awayIso": "ec", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 80, "round": 4, "roundName": "Round of 32", "home": "ENG", "away": "COD", "homeFull": "England", "awayFull": "DR Congo", "homeIso": "gb-eng", "awayIso": "cd", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 81, "round": 4, "roundName": "Round of 32", "home": "BEL", "away": "SEN", "homeFull": "Belgium", "awayFull": "Senegal", "homeIso": "be", "awayIso": "sn", "result": "H", "correct": []}, {"no": 82, "round": 4, "roundName": "Round of 32", "home": "USA", "away": "BIH", "homeFull": "United States", "awayFull": "Bosnia & Herz.", "homeIso": "us", "awayIso": "ba", "result": "H", "correct": []}, {"no": 83, "round": 4, "roundName": "Round of 32", "home": "ESP", "away": "AUT", "homeFull": "Spain", "awayFull": "Austria", "homeIso": "es", "awayIso": "at", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 84, "round": 4, "roundName": "Round of 32", "home": "POR", "away": "CRO", "homeFull": "Portugal", "awayFull": "Croatia", "homeIso": "pt", "awayIso": "hr", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 85, "round": 4, "roundName": "Round of 32", "home": "SUI", "away": "ALG", "homeFull": "Switzerland", "awayFull": "Algeria", "homeIso": "ch", "awayIso": "dz", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 86, "round": 4, "roundName": "Round of 32", "home": "AUS", "away": "EGY", "homeFull": "Australia", "awayFull": "Egypt", "homeIso": "au", "awayIso": "eg", "result": "A", "correct": ["Sam", "JohnnyJ", "Gwyn Thomas", "Matt"]}, {"no": 87, "round": 4, "roundName": "Round of 32", "home": "ARG", "away": "CPV", "homeFull": "Argentina", "awayFull": "Cape Verde", "homeIso": "ar", "awayIso": "cv", "result": "H", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 88, "round": 4, "roundName": "Round of 32", "home": "COL", "away": "GHA", "homeFull": "Colombia", "awayFull": "Ghana", "homeIso": "co", "awayIso": "gh", "result": "H", "correct": ["Sam", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 89, "round": 5, "roundName": "Round of 16", "home": "CAN", "away": "MAR", "homeFull": "Canada", "awayFull": "Morocco", "homeIso": "ca", "awayIso": "ma", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 90, "round": 5, "roundName": "Round of 16", "home": "PAR", "away": "FRA", "homeFull": "Paraguay", "awayFull": "France", "homeIso": "py", "awayIso": "fr", "result": "A", "correct": ["Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 91, "round": 5, "roundName": "Round of 16", "home": "BRA", "away": "NOR", "homeFull": "Brazil", "awayFull": "Norway", "homeIso": "br", "awayIso": "no", "result": "A", "correct": ["Adrienne", "Gwyn Thomas"]}, {"no": 92, "round": 5, "roundName": "Round of 16", "home": "MEX", "away": "ENG", "homeFull": "Mexico", "awayFull": "England", "homeIso": "mx", "awayIso": "gb-eng", "result": "A", "correct": ["Sam", "El Roxinho"]}, {"no": 93, "round": 5, "roundName": "Round of 16", "home": "POR", "away": "ESP", "homeFull": "Portugal", "awayFull": "Spain", "homeIso": "pt", "awayIso": "es", "result": "A", "correct": ["Adrienne", "JohnnyJ", "Matt"]}, {"no": 94, "round": 5, "roundName": "Round of 16", "home": "USA", "away": "BEL", "homeFull": "United States", "awayFull": "Belgium", "homeIso": "us", "awayIso": "be", "result": "A", "correct": ["Matt"]}, {"no": 95, "round": 5, "roundName": "Round of 16", "home": "EGY", "away": "ARG", "homeFull": "Egypt", "awayFull": "Argentina", "homeIso": "eg", "awayIso": "ar", "result": "A", "correct": ["Sam", "Adrienne", "JohnnyJ", "Gwyn Thomas", "Matt", "El Roxinho"]}, {"no": 96, "round": 5, "roundName": "Round of 16", "home": "SUI", "away": "COL", "homeFull": "Switzerland", "awayFull": "Colombia", "homeIso": "ch", "awayIso": "co", "result": "H", "correct": ["El Roxinho"]}];
-const META = {"Sam": {"note": "C4", "wave": "sine", "color": "#ff4d6d", "idx": 0}, "Adrienne": {"note": "E4", "wave": "sine", "color": "#ffd23f", "idx": 1}, "JohnnyJ": {"note": "G4", "wave": "sine", "color": "#6fdc8c", "idx": 2}, "Gwyn Thomas": {"note": "B4", "wave": "sine", "color": "#4cc9f0", "idx": 3}, "Matt": {"note": "D5", "wave": "sine", "color": "#7c83fd", "idx": 4}, "El Roxinho": {"note": "F#5", "wave": "sine", "color": "#d65db1", "idx": 5}};
+const META = {"Sam": {"note": "C4", "color": "#ff4d6d", "idx": 0}, "Adrienne": {"note": "E4", "color": "#ffd23f", "idx": 1}, "JohnnyJ": {"note": "G4", "color": "#6fdc8c", "idx": 2}, "Gwyn Thomas": {"note": "B4", "color": "#4cc9f0", "idx": 3}, "Matt": {"note": "D5", "color": "#7c83fd", "idx": 4}, "El Roxinho": {"note": "F#5", "color": "#d65db1", "idx": 5}};
 
 // ── Build the hexagon ───────────────────────────────────────────────────
 const svg = document.getElementById("hexSvg");
-const CX = 250, CY = 252, R = 160;
+const CX = 310, CY = 310, R = 160;
 const NODE_R = 52;
 const NS = "http://www.w3.org/2000/svg";
 
@@ -195,6 +197,90 @@ PLAYERS.forEach((name, i) => {
   nodeEls[name] = g;
 });
 
+// ── Outer ring: one radial bar per fixture ──────────────────────────────
+// Height/colour = how many players got that fixture right (0..6).
+// Bar count and spacing are derived from FIXTURES.length, so this adapts
+// automatically to however many fixtures the data actually has.
+const RING_INNER = 250;
+const RING_BASE_LEN = 6;     // unplayed / idle tick length
+const RING_MAX_LEN  = 42;    // fully-correct tick length
+const RING_IDLE_COLOR = "#262c38";   // unplayed, and fixtures nobody got right
+
+function hexToRgb(hex){
+  const h = hex.replace("#", "");
+  return {
+    r: parseInt(h.substring(0, 2), 16),
+    g: parseInt(h.substring(2, 4), 16),
+    b: parseInt(h.substring(4, 6), 16),
+  };
+}
+function rgbToHex(r, g, b){
+  return "#" + [r, g, b].map(v => Math.round(v).toString(16).padStart(2, "0")).join("");
+}
+// Blends the colours of whichever players got a fixture right — a fixture
+// called by Sam + Adrienne actually looks like Sam+Adrienne mixed, rather
+// than a generic "2 correct" shade.
+function mixPlayerColors(names){
+  if (names.length === 0) return RING_IDLE_COLOR;
+  const sum = names.reduce((acc, name) => {
+    const c = hexToRgb(META[name].color);
+    acc.r += c.r; acc.g += c.g; acc.b += c.b;
+    return acc;
+  }, { r: 0, g: 0, b: 0 });
+  const n = names.length;
+  return rgbToHex(sum.r / n, sum.g / n, sum.b / n);
+}
+
+function polarPoint(angleDeg, radius){
+  const rad = angleDeg * Math.PI / 180;
+  return [CX + radius * Math.cos(rad), CY + radius * Math.sin(rad)];
+}
+
+const ringGroup = document.createElementNS(NS, "g");
+svg.appendChild(ringGroup);
+
+const N_FIX = FIXTURES.length;
+const arcPerBar = (2 * Math.PI * RING_INNER) / N_FIX;
+const barWidth = Math.max(1.2, Math.min(6, arcPerBar * 0.65));
+
+const barEls = [];
+for (let i = 0; i < N_FIX; i++){
+  const angle = -90 + (i / N_FIX) * 360;
+  const [x1, y1] = polarPoint(angle, RING_INNER);
+  const [x2, y2] = polarPoint(angle, RING_INNER + RING_BASE_LEN);
+  const bar = document.createElementNS(NS, "line");
+  bar.setAttribute("class", "count-bar");
+  bar.setAttribute("x1", x1); bar.setAttribute("y1", y1);
+  bar.setAttribute("x2", x2); bar.setAttribute("y2", y2);
+  bar.setAttribute("stroke", RING_IDLE_COLOR);
+  bar.setAttribute("stroke-width", barWidth);
+  bar.setAttribute("stroke-linecap", "round");
+  bar.style.opacity = 0.4;
+  ringGroup.appendChild(bar);
+  barEls.push(bar);
+}
+
+function updateRing(currentIdx){
+  for (let i = 0; i < N_FIX; i++){
+    const bar = barEls[i];
+    const angle = -90 + (i / N_FIX) * 360;
+    if (i <= currentIdx){
+      const correctNames = FIXTURES[i].correct;
+      const count = correctNames.length;
+      const len = RING_BASE_LEN + (RING_MAX_LEN - RING_BASE_LEN) * (count / PLAYERS.length);
+      const [x2, y2] = polarPoint(angle, RING_INNER + len);
+      bar.setAttribute("x2", x2); bar.setAttribute("y2", y2);
+      bar.setAttribute("stroke", mixPlayerColors(correctNames));
+      bar.style.opacity = 1;
+    } else {
+      const [x2, y2] = polarPoint(angle, RING_INNER + RING_BASE_LEN);
+      bar.setAttribute("x2", x2); bar.setAttribute("y2", y2);
+      bar.setAttribute("stroke", RING_IDLE_COLOR);
+      bar.style.opacity = 0.4;
+    }
+  }
+}
+
 // ── Audio ────────────────────────────────────────────────────────────────
 let audioReady = false;
 let masterBus, analyser, synths = {};
@@ -213,11 +299,15 @@ function initAudio(){
   analyser = new Tone.Analyser("waveform", 1024);
   masterBus.connect(analyser);
   PLAYERS.forEach(name => {
-    const m = META[name];
-    synths[name] = new Tone.Synth({
-      oscillator: { type: m.wave },
-      envelope: { attack: 0.01, decay: 0.15, sustain: 0.4, release: 0.35 },
-      volume: -5,
+    synths[name] = new Tone.MonoSynth({
+      oscillator: { type: "sawtooth" },
+      filter: { type: "lowpass", rolloff: -24, Q: 1.8 },
+      filterEnvelope: {
+        attack: 0.01, decay: 0.25, sustain: 0.25, release: 0.4,
+        baseFrequency: 250, octaves: 3.2,
+      },
+      envelope: { attack: 0.01, decay: 0.18, sustain: 0.35, release: 0.4 },
+      volume: -10,
     }).connect(masterBus);
   });
   audioReady = true;
@@ -225,6 +315,12 @@ function initAudio(){
 }
 
 async function unlockAudio(){
+  // Nudge iOS's audio session into "playback" category via a silent HTML
+  // media element — this is what makes Web Audio (Tone.js) audible even
+  // when the phone's hardware mute switch is flipped to silent.
+  const unlockEl = document.getElementById("unlockEl");
+  if (unlockEl){ try { await unlockEl.play(); } catch(e) {} }
+
   if (!initAudio()) return false;
   await Tone.start();
   if (Tone.context.state !== "running"){
@@ -299,6 +395,7 @@ function renderFixture(i){
   }
 
   updateReadout(fx);
+  updateRing(i);
   counterEl.textContent = `${i + 1} / ${FIXTURES.length}`;
 }
 
