@@ -39,16 +39,23 @@
     transition:stroke-width .2s ease, opacity .2s ease;}
   .wire.active{stroke-width:3.2px;opacity:1;
     filter:drop-shadow(0 0 5px rgba(255,255,255,.35));}
+  .node{cursor:pointer;}
   .node circle.ring{fill:var(--panel);stroke-width:2px;
-    transition:filter .2s ease, stroke-width .2s ease;}
+    transition:filter .2s ease, stroke-width .2s ease, opacity .2s ease;}
+  .node:hover circle.ring{stroke-width:3px;}
   .node.active circle.ring{stroke-width:3.5px;
     filter:drop-shadow(0 0 14px currentColor);}
   .node text{font-family:'JetBrains Mono',monospace;font-size:12.5px;
     font-weight:700;fill:var(--text);text-anchor:middle;
-    dominant-baseline:middle;pointer-events:none;}
+    dominant-baseline:middle;pointer-events:none;transition:opacity .2s ease;}
   .node .note-lbl{font-size:10px;font-weight:500;fill:var(--text-muted);
-    text-anchor:middle;pointer-events:none;}
+    text-anchor:middle;pointer-events:none;transition:opacity .2s ease;}
+  .node.muted circle.ring{opacity:.3;stroke-dasharray:5 4;}
+  .node.muted text{opacity:.4;text-decoration:line-through;}
+  .node.muted .note-lbl{opacity:.25;}
   .count-bar{transition:stroke .2s ease, opacity .2s ease;}
+  .hint{color:var(--text-muted);font-size:11px;font-style:italic;
+    white-space:nowrap;}
 
   .scope{width:100%;height:64px;display:block;margin-top:22px;
     border-radius:8px;background:#080a0d;border:1px solid var(--panel-border);}
@@ -108,6 +115,7 @@
       <button class="primary" id="playBtn">▶ Play</button>
       <button id="prevBtn" title="Previous fixture">⏮</button>
       <button id="nextBtn" title="Next fixture">⏭</button>
+      <span class="hint">tap a name to turn that player on or off</span>
       <div class="spacer"></div>
       <label class="loop"><input type="checkbox" id="loop" checked> loop</label>
       <div class="counter" id="counter">0 / 0</div>
@@ -195,7 +203,34 @@ PLAYERS.forEach((name, i) => {
 
   svg.appendChild(g);
   nodeEls[name] = g;
+
+  g.addEventListener("click", () => toggleMute(name));
 });
+
+// ── Mute toggling ────────────────────────────────────────────────────────
+// Tapping a player's node turns their contribution on/off — muted players
+// are treated as if they never predicted at all: they can't light up,
+// can't light a wire, and don't count toward the ring's colour/height.
+const mutedPlayers = new Set();
+
+function updateNodeMuteStyle(name){
+  const node = nodeEls[name];
+  if (!node) return;
+  node.classList.toggle("muted", mutedPlayers.has(name));
+}
+
+async function toggleMute(name){
+  if (mutedPlayers.has(name)) mutedPlayers.delete(name); else mutedPlayers.add(name);
+  updateNodeMuteStyle(name);
+  if (idx > -1) renderFixture(idx);
+
+  const ok = await unlockAudio();
+  if (ok) synths[name].triggerAttackRelease(META[name].note, (STEP_MS / 1000) * 0.9);
+}
+
+function effectiveCorrect(fx){
+  return fx.correct.filter(name => !mutedPlayers.has(name));
+}
 
 // ── Outer ring: one radial bar per fixture ──────────────────────────────
 // Height/colour = how many players got that fixture right (0..6).
@@ -265,7 +300,7 @@ function updateRing(currentIdx){
     const bar = barEls[i];
     const angle = -90 + (i / N_FIX) * 360;
     if (i <= currentIdx){
-      const correctNames = FIXTURES[i].correct;
+      const correctNames = effectiveCorrect(FIXTURES[i]);
       const count = correctNames.length;
       const len = RING_BASE_LEN + (RING_MAX_LEN - RING_BASE_LEN) * (count / PLAYERS.length);
       const [x2, y2] = polarPoint(angle, RING_INNER + len);
@@ -377,9 +412,10 @@ function clearActive(){
 function renderFixture(i){
   clearActive();
   const fx = FIXTURES[i];
-  const correctIdxs = fx.correct.map(n => PLAYERS.indexOf(n)).sort((a,b)=>a-b);
+  const correct = effectiveCorrect(fx);
+  const correctIdxs = correct.map(n => PLAYERS.indexOf(n)).sort((a,b)=>a-b);
 
-  fx.correct.forEach(name => { nodeEls[name] && nodeEls[name].classList.add("active"); });
+  correct.forEach(name => { nodeEls[name] && nodeEls[name].classList.add("active"); });
 
   for (let a = 0; a < correctIdxs.length; a++){
     for (let b = a + 1; b < correctIdxs.length; b++){
@@ -391,27 +427,27 @@ function renderFixture(i){
 
   if (audioReady){
     const dur = (STEP_MS / 1000) * 0.9;
-    fx.correct.forEach(name => { synths[name].triggerAttackRelease(META[name].note, dur); });
+    correct.forEach(name => { synths[name].triggerAttackRelease(META[name].note, dur); });
   }
 
-  updateReadout(fx);
+  updateReadout(fx, correct);
   updateRing(i);
   counterEl.textContent = `${i + 1} / ${FIXTURES.length}`;
 }
 
-function updateReadout(fx){
+function updateReadout(fx, correct){
   const resultLabel = fx.result === "H" ? `${fx.home} win`
                      : fx.result === "A" ? `${fx.away} win`
                      : "Draw";
   let chipsHtml = "";
-  if (fx.correct.length === 0){
+  if (correct.length === 0){
     chipsHtml = `<div class="chips"><span class="chip silence">— total silence, nobody called it —</span></div>`;
   } else {
-    const dots = fx.correct.map(name => {
-      const cls = fx.correct.length === PLAYERS.length ? "chip full" : "chip";
+    const dots = correct.map(name => {
+      const cls = correct.length === PLAYERS.length ? "chip full" : "chip";
       return `<span class="${cls}"><span class="dot" style="background:${META[name].color}"></span>${name}</span>`;
     }).join("");
-    const prefix = fx.correct.length === PLAYERS.length ? `<span class="chip full">🎉 FULL CHORD</span>` : "";
+    const prefix = correct.length === PLAYERS.length ? `<span class="chip full">🎉 FULL CHORD</span>` : "";
     chipsHtml = `<div class="chips">${prefix}${dots}</div>`;
   }
   readoutEl.innerHTML = `<div class="fx-line">Fixture <b>#${fx.no}</b> · ${fx.roundName} ·
