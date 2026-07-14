@@ -222,7 +222,13 @@ function updateNodeMuteStyle(name){
 async function toggleMute(name){
   if (mutedPlayers.has(name)) mutedPlayers.delete(name); else mutedPlayers.add(name);
   updateNodeMuteStyle(name);
-  if (idx > -1) renderFixture(idx);
+  if (idx > -1){
+    // Muting changes effectiveCorrect() for every fixture already played,
+    // so the ring's blended colours need a full re-light, not just the
+    // incremental single-bar update a normal step does.
+    ringLitUpTo = -1;
+    renderFixture(idx);
+  }
 
   const ok = await unlockAudio();
   if (ok) synths[name].triggerAttackRelease(META[name].note, (STEP_MS / 1000) * 0.9);
@@ -295,25 +301,42 @@ for (let i = 0; i < N_FIX; i++){
   barEls.push(bar);
 }
 
+function setBarLit(i){
+  const bar = barEls[i];
+  const angle = -90 + (i / N_FIX) * 360;
+  const correctNames = effectiveCorrect(FIXTURES[i]);
+  const count = correctNames.length;
+  const len = RING_BASE_LEN + (RING_MAX_LEN - RING_BASE_LEN) * (count / PLAYERS.length);
+  const [x2, y2] = polarPoint(angle, RING_INNER + len);
+  bar.setAttribute("x2", x2); bar.setAttribute("y2", y2);
+  bar.setAttribute("stroke", mixPlayerColors(correctNames));
+  bar.style.opacity = 1;
+}
+
+function setBarUnlit(i){
+  const bar = barEls[i];
+  const angle = -90 + (i / N_FIX) * 360;
+  const [x2, y2] = polarPoint(angle, RING_INNER + RING_BASE_LEN);
+  bar.setAttribute("x2", x2); bar.setAttribute("y2", y2);
+  bar.setAttribute("stroke", RING_IDLE_COLOR);
+  bar.style.opacity = 0.4;
+}
+
+// Tracks how far the ring is currently lit, so a normal step forward only
+// touches the one newly-revealed bar instead of re-writing all N of them
+// every 300ms. Stepping backward (Prev, or looping back to the start)
+// still only touches the bars whose state actually changes. Setting this
+// to -1 forces the next call to relight everything from scratch, which is
+// used deliberately when muting/unmuting a player changes history's colours.
+let ringLitUpTo = -1;
+
 function updateRing(currentIdx){
-  for (let i = 0; i < N_FIX; i++){
-    const bar = barEls[i];
-    const angle = -90 + (i / N_FIX) * 360;
-    if (i <= currentIdx){
-      const correctNames = effectiveCorrect(FIXTURES[i]);
-      const count = correctNames.length;
-      const len = RING_BASE_LEN + (RING_MAX_LEN - RING_BASE_LEN) * (count / PLAYERS.length);
-      const [x2, y2] = polarPoint(angle, RING_INNER + len);
-      bar.setAttribute("x2", x2); bar.setAttribute("y2", y2);
-      bar.setAttribute("stroke", mixPlayerColors(correctNames));
-      bar.style.opacity = 1;
-    } else {
-      const [x2, y2] = polarPoint(angle, RING_INNER + RING_BASE_LEN);
-      bar.setAttribute("x2", x2); bar.setAttribute("y2", y2);
-      bar.setAttribute("stroke", RING_IDLE_COLOR);
-      bar.style.opacity = 0.4;
-    }
+  if (currentIdx > ringLitUpTo){
+    for (let i = ringLitUpTo + 1; i <= currentIdx; i++) setBarLit(i);
+  } else if (currentIdx < ringLitUpTo){
+    for (let i = currentIdx + 1; i <= ringLitUpTo; i++) setBarUnlit(i);
   }
+  ringLitUpTo = currentIdx;
 }
 
 // ── Audio ────────────────────────────────────────────────────────────────
@@ -331,18 +354,21 @@ function initAudio(){
     return false;
   }
   masterBus = new Tone.Gain(0.8).toDestination();
-  analyser = new Tone.Analyser("waveform", 1024);
+  // Smaller analyser buffer = less work per animation frame.
+  analyser = new Tone.Analyser("waveform", 256);
   masterBus.connect(analyser);
   PLAYERS.forEach(name => {
-    synths[name] = new Tone.MonoSynth({
-      oscillator: { type: "sawtooth" },
-      filter: { type: "lowpass", rolloff: -24, Q: 1.8 },
-      filterEnvelope: {
-        attack: 0.01, decay: 0.25, sustain: 0.25, release: 0.4,
-        baseFrequency: 250, octaves: 3.2,
-      },
-      envelope: { attack: 0.01, decay: 0.18, sustain: 0.35, release: 0.4 },
-      volume: -10,
+    // Plain Tone.Synth: one oscillator + one envelope, no filter or filter
+    // envelope to compute. MonoSynth (osc + filter + 2 envelope generators)
+    // times 6 simultaneous voices was too much real-time DSP for weaker
+    // phones' audio threads, which reads as crackly distortion regardless
+    // of volume/gain-staging. Triangle wave keeps some harmonic character
+    // (more "synth" than a pure sine) without sawtooth's heavier harmonic
+    // content, which also helps on cheap speakers.
+    synths[name] = new Tone.Synth({
+      oscillator: { type: "triangle" },
+      envelope: { attack: 0.005, decay: 0.15, sustain: 0.3, release: 0.3 },
+      volume: -8,
     }).connect(masterBus);
   });
   audioReady = true;
@@ -374,7 +400,7 @@ function drawScope(){
   scopeCtx.clearRect(0, 0, w, h);
   scopeCtx.beginPath();
   let values = null;
-  if (audioReady){
+  if (audioReady && playing){
     try { values = analyser.getValue(); } catch(e) { values = null; }
   }
   if (values){
@@ -426,6 +452,9 @@ function renderFixture(i){
   }
 
   if (audioReady){
+    // Hold + release needs to comfortably fit inside STEP_MS, or a player
+    // who's correct several fixtures in a row never actually goes silent
+    // between notes — that's what was causing the buildup/distortion.
     const dur = (STEP_MS / 1000) * 0.9;
     correct.forEach(name => { synths[name].triggerAttackRelease(META[name].note, dur); });
   }
